@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build-and-analyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,19 +17,34 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x' #This dotnet version
+          dotnet-version: '8.0.x'  # Match your .NET version
 
       - name: Install SonarScanner
         run: dotnet tool install --global dotnet-sonarscanner
 
-      - name: Begin SonarCloud Analysis
-          env:
+      - name: Debug Secrets (Temporary - Remove After Success)
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # ← This is REQUIRED
         run: |
-          dotnet sonarscanner begin /k:"Dotnet-Sonarcloud" \
-          /d:sonar.host.url="${SONAR_HOST_URL}" \
-          /d:sonar.login="${SONAR_TOKEN}"
+          echo "SONAR_HOST_URL loaded: ${{ secrets.SONAR_HOST_URL != '' }}"  # Should be 'true'
+          echo "SONAR_TOKEN loaded: ${{ secrets.SONAR_TOKEN != '' }}"         # Should be 'true'
+          echo "Organization: radhika-testengineer"
+          echo "Project Key: Dotnet-Sonarcloud"
+
+      - name: Begin SonarCloud Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          echo "Beginning analysis with host: $SONAR_HOST_URL"
+          dotnet sonarscanner begin \
+            /k:"Dotnet-Sonarcloud" \
+            /o:"radhika-testengineer" \
+            /d:sonar.host.url="$SONAR_HOST_URL" \
+            /d:sonar.login="$SONAR_TOKEN" \
+            /d:sonar.cs.vstest.reportsPaths="**/*.trx" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
       - name: Restore Dependencies
         run: dotnet restore
@@ -41,20 +56,19 @@ jobs:
         run: |
           dotnet test --no-build --configuration Release \
             --collect:"XPlat Code Coverage" \
-            --results-directory ./coverage
-      
+            --results-directory ./coverage \
+            --logger trx \
+            --verbosity normal
+
       - name: End SonarCloud Analysis
-        if: always()
+        if: always()  # Run even if tests fail
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: dotnet sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
-
-        - name: DEBUG - Print Secrets Status
-          run: |
-         echo "SONAR_TOKEN exists: ${{ secrets.SONAR_TOKEN != '' }}"
-         echo "SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}"
+        run: |
+          echo "Ending analysis..."
+          dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 
       - name: Quality Gate Check
-        uses: sonarsource/sonarqube-quality-gate-action@v1
+        uses: sonarsource/sonarqube-quality-gate-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
