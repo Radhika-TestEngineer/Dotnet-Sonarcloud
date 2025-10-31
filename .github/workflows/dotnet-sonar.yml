@@ -27,9 +27,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # ← This is REQUIRED
         run: |
-    dotnet sonarscanner begin /k:"Dotnet-Sonarcloud" \
-      /d:sonar.host.url="${SONAR_HOST_URL}" \
-      /d:sonar.login="${SONAR_TOKEN}"
+          dotnet sonarscanner begin /k:"Dotnet-Sonarcloud" \
+          /d:sonar.host.url="${SONAR_HOST_URL}" \
+          /d:sonar.login="${SONAR_TOKEN}"
 
       - name: Restore Dependencies
         run: dotnet restore
@@ -42,15 +42,17 @@ jobs:
           dotnet test --no-build --configuration Release \
             --collect:"XPlat Code Coverage" \
             --results-directory ./coverage
-      - name: DEBUG - Print Secrets Status
-       run: |
-         echo "SONAR_TOKEN exists: ${{ secrets.SONAR_TOKEN != '' }}"
-         echo "SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}"
+      
       - name: End SonarCloud Analysis
         if: always()
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.login="${{ env.SONAR_TOKEN }}"
+
+        - name: DEBUG - Print Secrets Status
+          run: |
+         echo "SONAR_TOKEN exists: ${{ secrets.SONAR_TOKEN != '' }}"
+         echo "SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}"
 
       - name: Quality Gate Check
         uses: sonarsource/sonarqube-quality-gate-action@v1
