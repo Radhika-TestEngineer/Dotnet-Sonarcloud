@@ -64,6 +64,6 @@ jobs:
        if: success()
        uses: sonarsource/sonarqube-quality-gate-action@master
        with:
-         scanMetadataReportFile: .scannerwork/report-task.txt
+         scanMetadataReportFile: ./FactorialApp/.scannerwork/report-task.txt
        env:
          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
