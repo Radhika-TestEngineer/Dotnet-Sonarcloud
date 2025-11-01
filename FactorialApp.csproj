@@ -1,5 +1,4 @@
-# 1. Edit FactorialApp.csproj
-cat > FactorialApp.csproj << 'EOF'
+
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
