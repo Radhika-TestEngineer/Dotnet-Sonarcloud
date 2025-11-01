@@ -54,10 +54,10 @@ jobs:
         run: |
           dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
-      - name: SonarCloud Quality Gate
-        if: success()
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        with:
-          scanMetadataReportFile: ./FactorialApp/.scannerwork/report-task.txt
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+     - name: SonarCloud Quality Gate
+       if: success()
+       uses: sonarsource/sonarqube-quality-gate-action@master
+       with:
+         scanMetadataReportFile: .scannerwork/report-task.txt
+       env:
+         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
