@@ -1,10 +1,7 @@
-using System;
-
 namespace FactorialApp
 {
-    internal class Program
+    public class Program
     {
-        // Make the method public so tests can call it
         public static long CalculateFactorial(int n)
         {
             if (n == 0 || n == 1) return 1;
@@ -13,10 +10,9 @@ namespace FactorialApp
             return fact;
         }
 
-        // Only ONE entry point
         private static void Main(string[] args)
         {
-            Console.WriteLine("Enter a number:");
+            Console.WriteLine("Enter number:");
             if (int.TryParse(Console.ReadLine(), out int num) && num >= 0)
                 Console.WriteLine($"Factorial = {CalculateFactorial(num)}");
             else

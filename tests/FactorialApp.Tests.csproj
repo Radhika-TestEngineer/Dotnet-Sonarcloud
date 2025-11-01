@@ -7,10 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Link to main project -->
     <ProjectReference Include="../FactorialApp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- NUNIT PACKAGES -->
     <PackageReference Include="NUnit" Version="4.1.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <!-- Code Coverage -->
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
   </ItemGroup>
 
