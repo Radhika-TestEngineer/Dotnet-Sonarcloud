@@ -30,6 +30,7 @@ jobs:
         run: |
           dotnet sonarscanner begin /k:"my-dotnet-sample" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
+            /d:sonar.scanner.sonarcloudUrl="${SONAR_HOST_URL}"
             /d:sonar.login="${{ env.SONAR_TOKEN }}" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
