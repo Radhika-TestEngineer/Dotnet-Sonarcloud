@@ -43,28 +43,28 @@ jobs:
       - name: Build project
         run: dotnet build --no-restore -c Release
 
-            - name: Run tests with Coverlet
+      - name: Run tests with Coverlet
         shell: bash
         run: |
           echo "🔍 Searching for test projects..."
-          mapfile -t TEST_PROJECTS < <(find "$GITHUB_WORKSPACE" -type f -name "*Tests.csproj" -not -path "*/bin/*" -not -path "*/obj/*")
+          TEST_PROJECTS=$(find . -type f -name "*Tests.csproj" -not -path "*/bin/*" -not -path "*/obj/*")
 
-          if [ ${#TEST_PROJECTS[@]} -eq 0 ]; then
+          if [ -z "$TEST_PROJECTS" ]; then
             echo "⚠️ No test projects found!"
             exit 0
           fi
 
-          for proj in "${TEST_PROJECTS[@]}"; do
+          for proj in $TEST_PROJECTS; do
             echo "🧪 Running tests for: $proj"
-            cd "$(dirname "$proj")"
-
-            dotnet test "$(basename "$proj")" --no-build -c Release \
+            dotnet test "$proj" --no-build -c Release \
               /p:CollectCoverage=true \
-              /p:CoverletOutput=./TestResults/coverage.opencover.xml \
+              /p:CoverletOutput=TestResults/coverage.opencover.xml \
               /p:CoverletOutputFormat=opencover
-
-            cd "$GITHUB_WORKSPACE"
           done
+
+          echo "✅ Test execution completed."
+          find . -type f -name "coverage.opencover.xml"
+
 
 
       - name: Verify coverage file exists
