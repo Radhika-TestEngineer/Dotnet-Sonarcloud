@@ -29,7 +29,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           dotnet sonarscanner begin \
-            /k:"Dotnet-Sonarcloud" \
+            /k:"Radhika-TestEngineer_Dotnet-Sonarcloud" \
             /o:"radhika-testengineer" \
             /d:sonar.host.url="${SONAR_HOST_URL}" \
             /d:sonar.scanner.sonarcloudUrl="${SONAR_HOST_URL}" \
