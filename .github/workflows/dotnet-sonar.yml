@@ -56,14 +56,18 @@ jobs:
 
           for proj in $TEST_PROJECTS; do
             echo "🧪 Running tests for: $proj"
-            dotnet test "$proj" --no-build -c Release \
+            dotnet restore "$proj"
+            dotnet build "$proj" -c Release
+
+            dotnet test "$proj" -c Release --no-restore \
               /p:CollectCoverage=true \
-              /p:CoverletOutput=TestResults/coverage.opencover.xml \
+              /p:CoverletOutput=./TestResults/coverage/ \
               /p:CoverletOutputFormat=opencover
           done
 
           echo "✅ Test execution completed."
           find . -type f -name "coverage.opencover.xml"
+
 
 
 
