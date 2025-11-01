@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup .NET                 #.net will setup4
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
@@ -32,7 +32,6 @@ jobs:
             /k:"Radhika-TestEngineer_Dotnet-Sonarcloud" \
             /o:"radhika-testengineer" \
             /d:sonar.host.url="${SONAR_HOST_URL}" \
-            /d:sonar.scanner.sonarcloudUrl="${SONAR_HOST_URL}" \
             /d:sonar.login="${SONAR_TOKEN}"
 
       - name: Restore
@@ -54,16 +53,15 @@ jobs:
         run: |
           dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
-       - name: Debug — Find report-task.txt path
-       run: |
-       echo "Searching for report-task.txt..."
-       find . -type f -name "report-task.txt" || echo "No report-task.txt found"
-   
+      - name: Debug — Find report-task.txt path
+        run: |
+          echo "Searching for report-task.txt..."
+          find . -type f -name "report-task.txt" || echo "No report-task.txt found"
 
-     - name: SonarCloud Quality Gate
-       if: success()
-       uses: sonarsource/sonarqube-quality-gate-action@master
-       with:
-         scanMetadataReportFile: .scannerwork/report-task.txt
-       env:
-         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Quality Gate
+        if: success()
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          scanMetadataReportFile: .scannerwork/report-task.txt
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
