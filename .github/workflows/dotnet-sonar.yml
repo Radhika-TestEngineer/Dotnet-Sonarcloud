@@ -28,22 +28,20 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          dotnet sonarscanner begin \
-            /k:"Dotnet-Sonarcloud" \
-            /o:"radhika-testengineer" \
-            /d:sonar.host.url="${SONAR_HOST_URL}" \
-            /d:sonar.scanner.sonarcloudUrl="${SONAR_HOST_URL}" \
-            /d:sonar.login="${SONAR_TOKEN}"
+          dotnet sonarscanner begin /k:"my-dotnet-sample" \
+            /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
+            /d:sonar.login="${{ env.SONAR_TOKEN }}" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
-      - name: Restore
+      - name: Restore Dependencies
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --no-restore -c Release
+        run: dotnet build --configuration Release --no-restore
 
       - name: Test with Coverage
         run: |
-          dotnet test --no-build -c Release \
+          dotnet test --no-build --configuration Release \
             --collect:"XPlat Code Coverage" \
             --results-directory ./coverage
 
@@ -54,7 +52,7 @@ jobs:
         run: |
           dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
-      - name: Quality Gate
-        uses: sonarsource/sonarqube-quality-gate-action@master
+      - name: Quality Gate Check
+        uses: sonarsource/sonarqube-quality-gate-action@v1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
