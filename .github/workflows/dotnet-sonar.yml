@@ -1,4 +1,3 @@
-# .github/workflows/sonarcloud.yml
 name: SonarCloud
 
 on:
@@ -10,8 +9,10 @@ on:
 jobs:
   analyze:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -20,43 +21,44 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Install SonarScanner
-        run: dotnet tool install --global dotnet-sonarscanner
+      - name: Install tools
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet tool install --global coverlet.console
 
-      - name: Begin SonarCloud
+      - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           dotnet sonarscanner begin \
-            /k:"Radhika-TestEngineer_Dotnet-Sonarcloud" \
+            /k:"Dotnet-Sonarcloud" \
             /o:"radhika-testengineer" \
             /d:sonar.host.url="${SONAR_HOST_URL}" \
-            /d:sonar.login="${SONAR_TOKEN}"
+            /d:sonar.login="${SONAR_TOKEN}" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
-      - name: Restore
+      - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
+      - name: Build project
         run: dotnet build --no-restore -c Release
 
-      - name: Test with Coverage
+      - name: Run tests with Coverlet
         run: |
-          dotnet test --no-build -c Release \
-            --collect:"XPlat Code Coverage" \
-            --results-directory ./coverage
+          for proj in $(find . -name "*.csproj" -not -path "*/bin/*" -not -path "*/obj/*" | grep -i test || true); do
+            echo "🧪 Running tests for $proj"
+            dotnet test "$proj" --no-build -c Release \
+              /p:CollectCoverage=true \
+              /p:CoverletOutput=./TestResults/coverage/ \
+              /p:CoverletOutputFormat=opencover
+          done
 
-      - name: End SonarCloud
+      - name: End SonarCloud analysis
         if: always()
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
-
-      - name: Debug — Find report-task.txt path
-        run: |
-          echo "Searching for report-task.txt..."
-          find . -type f -name "report-task.txt" || echo "No report-task.txt found"
+        run: dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
       - name: SonarCloud Quality Gate
         if: success()
