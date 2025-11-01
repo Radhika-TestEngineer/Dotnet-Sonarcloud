@@ -1,5 +1,6 @@
+// tests/FactorialTests.cs
 using NUnit.Framework;
-using FactorialApp;  // Namespace from Program.cs
+using FactorialApp;
 
 namespace FactorialApp.Tests
 {
