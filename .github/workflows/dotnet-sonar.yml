@@ -45,11 +45,19 @@ jobs:
 
       - name: Run tests with Coverlet
         run: |
-          for proj in $(find . -name "*Tests.csproj" -not -path "*/bin/*" -not -path "*/obj/*" || true); do
-            echo "🧪 Running tests for $proj"
+          echo "🔍 Looking for test projects..."
+          TEST_PROJECTS=$(find . -type f -name "*Tests.csproj" -not -path "*/bin/*" -not -path "*/obj/*" || true)
+
+          if [ -z "$TEST_PROJECTS" ]; then
+            echo "⚠️ No test projects found!"
+            exit 0
+          fi
+
+          for proj in $TEST_PROJECTS; do
+            echo "🧪 Running tests for project: $proj"
             dotnet test "$proj" --no-build -c Release \
               /p:CollectCoverage=true \
-              /p:CoverletOutput=TestResults/coverage.opencover.xml \
+              /p:CoverletOutput="$(dirname "$proj")/TestResults/coverage.opencover.xml" \
               /p:CoverletOutputFormat=opencover
           done
 
