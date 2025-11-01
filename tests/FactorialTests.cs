@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using FactorialApp;  // Reference to main namespace
+using FactorialApp;   // same namespace as Program.cs
 
 namespace FactorialApp.Tests
 {
@@ -7,31 +7,17 @@ namespace FactorialApp.Tests
     public class FactorialTests
     {
         [Test]
-        public void CalculateFactorial_For5_Returns120()
+        public void Factorial_Of_5_Is_120()
         {
-            // Arrange
-            int input = 5;
-            long expected = 120;
-
-            // Act
-            long actual = Program.CalculateFactorial(input);
-
-            // Assert
-            Assert.AreEqual(expected, actual);
+            long result = Program.CalculateFactorial(5);
+            Assert.That(result, Is.EqualTo(120));
         }
 
         [Test]
-        public void CalculateFactorial_For0_Returns1()
+        public void Factorial_Of_0_Is_1()
         {
-            // Arrange
-            int input = 0;
-            long expected = 1;
-
-            // Act
-            long actual = Program.CalculateFactorial(input);
-
-            // Assert
-            Assert.AreEqual(expected, actual);
+            long result = Program.CalculateFactorial(0);
+            Assert.That(result, Is.EqualTo(1));
         }
     }
 }
