@@ -54,6 +54,12 @@ jobs:
         run: |
           dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
+       - name: Debug — Find report-task.txt path
+       run: |
+       echo "Searching for report-task.txt..."
+       find . -type f -name "report-task.txt" || echo "No report-task.txt found"
+   
+
      - name: SonarCloud Quality Gate
        if: success()
        uses: sonarsource/sonarqube-quality-gate-action@master
