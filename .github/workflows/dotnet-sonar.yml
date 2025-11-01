@@ -29,12 +29,11 @@ jobs:
       - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           dotnet sonarscanner begin \
-            /k:"Dotnet-Sonarcloud" \
+            /k:"radhika-testengineer_Dotnet-Sonarcloud" \
             /o:"radhika-testengineer" \
-            /d:sonar.host.url="${SONAR_HOST_URL}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.login="${SONAR_TOKEN}" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
@@ -46,16 +45,20 @@ jobs:
 
       - name: Run tests with Coverlet
         run: |
-          for proj in $(find . -name "*.csproj" -not -path "*/bin/*" -not -path "*/obj/*" | grep -i test || true); do
+          for proj in $(find . -name "*Tests.csproj" -not -path "*/bin/*" -not -path "*/obj/*" || true); do
             echo "🧪 Running tests for $proj"
             dotnet test "$proj" --no-build -c Release \
               /p:CollectCoverage=true \
-              /p:CoverletOutput=./TestResults/coverage/ \
+              /p:CoverletOutput=TestResults/coverage.opencover.xml \
               /p:CoverletOutputFormat=opencover
           done
 
+      - name: Verify coverage file exists
+        run: |
+          echo "📂 Checking for coverage report..."
+          find . -name "coverage.opencover.xml" || (echo "❌ Coverage report not found!" && exit 1)
+
       - name: End SonarCloud analysis
-        if: always()
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
